@@ -1,4 +1,15 @@
-Greedy Top-K-degree:
+Nothing:
+final outcome:
+5242
+3935
+final outcome:
+9877
+8320
+final outcome:
+12008
+9695
+
+GreedyTopKDegreeAttack:
 final outcome:
 4980
 3160
@@ -8,3 +19,25 @@ final outcome:
 final outcome:
 11408
 8221
+
+TopKDegreeAttack:
+final outcome:
+4979
+3267
+final outcome:
+9383
+5378
+final outcome:
+11407
+8374
+
+FriendsOfPatientsAttack:
+final outcome:
+4980
+3494
+final outcome:
+9384
+7207
+final outcome:
+11408
+8791

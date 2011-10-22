@@ -2,7 +2,9 @@ package helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import sna_hw2_a.ICModel;
 import sna_hw2_a.LTModel;
@@ -126,7 +128,40 @@ public class AttackStrategy {
 		return -1;
 	}	
 
-	
+	public static List<Integer> myTopKInfluential(Model model, int removeNum){
+		
+		List<MyNode> nodeList = new ArrayList<MyNode>();
+		for(MyNode node : model.getGraph().getVertices()){			
+			//If a node is healthy => Test how does its removal affect the diffusion
+			if(node.isState() == false){
+				
+				Model testModel = null;
+				if(model instanceof ICModel) testModel = new ICModel(model);
+				else if(model instanceof LTModel) testModel = new LTModel(model);
+				else if(model instanceof MyModel) testModel = new MyModel(model);
+				
+				Integer nodeID = node.getId();
+				MyNode toRemove = testModel.getMap().get(nodeID);
+				testModel.getGraph().removeVertex(toRemove);
+				
+				testModel.diffuse();
+				int infectedCount = testModel.getHasInfected().size();
+				
+				node.setMeasure(infectedCount);
+				nodeList.add(node);
+			}
+		}
+		
+		Collections.sort(nodeList);
+		
+		List<Integer> immuneList = new ArrayList<Integer>();
+		for(int i=nodeList.size()-1; i>=0; i--){
+			immuneList.add(nodeList.get(i).getId());
+			model.getGraph().removeVertex(nodeList.get(i));
+		}
+		
+		return immuneList;
+	}
 	
 	public static List<Integer> greedyTopKDegree(Model model, int removeNum){
 		
@@ -171,9 +206,7 @@ public class AttackStrategy {
 			}
 		}
 		
-		Collections.sort(nodeList);*/
-		
-					
+		Collections.sort(nodeList);*/					
 		
 	}
 	
@@ -186,28 +219,35 @@ public class AttackStrategy {
 				node.setMeasure(degree);
 				infectedList.add(node);
 			}
-		}
-		
+		}		
 		Collections.sort(infectedList);
 		
 		int removeCount = 0;
 		List<Integer> immuneList = new ArrayList<Integer>();
+		Set<MyNode> immuneSet = new HashSet<MyNode>();
 		Graph<MyNode, MyLink> graph = model.getGraph();
+		
 		for(int i=infectedList.size()-1; i>=0; i--){			
 			MyNode infectedNode = infectedList.get(i);
 			if(graph.containsVertex(infectedNode)){
 				for( MyNode neighbor : graph.getSuccessors(infectedNode) ){
-					if(neighbor.isState() == false){
-						graph.removeVertex(neighbor);						
-						removeCount++;
-						immuneList.add(neighbor.getId());
-						if(removeCount >= removeNum) break;
+					if(neighbor.isState() == false){						
+						if(immuneSet.add(neighbor)){ 
+							removeCount++;
+							immuneList.add(neighbor.getId());
+							if(removeCount >= removeNum) break;
+						}												
 					}
 				}
 			}
 			if(removeCount >= removeNum) break;
 		}
-						
+		assert(immuneSet.size() <= removeNum);
+
+		for(MyNode toRemove : immuneSet){
+			graph.removeVertex(toRemove);
+		}
+		
 		return immuneList;
 	}
 	

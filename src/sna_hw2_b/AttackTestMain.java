@@ -36,9 +36,9 @@ public class AttackTestMain {
 			ltmodel1.init("ca-HepTh.txt","HepTh_reveal.txt");
 			mymodel1.init("ca-HepPh.txt","HepPh_reveal.txt");
 			
-			icmodel1.attack(AttackMethod.InfluencialAttack);
-			ltmodel1.attack(AttackMethod.InfluencialAttack);
-			mymodel1.attack(AttackMethod.InfluencialAttack);
+			icmodel1.attack(AttackMethod.MyTopKInfluentialAttack);
+			ltmodel1.attack(AttackMethod.MyTopKInfluentialAttack);
+			mymodel1.attack(AttackMethod.MyTopKInfluentialAttack);
 			
 			icmodel1.diffuse();
 			ltmodel1.diffuse();

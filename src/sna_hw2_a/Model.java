@@ -171,6 +171,11 @@ public abstract class Model {
 				}
 				break;
 				
+				case MyTopKInfluentialAttack:{
+					AttackStrategy.myTopKInfluential(this, num);
+				}
+				break;
+				
 				case InfluencialAttack:{
 					int index=-1;
 					for (int i=0;i<num;i++){
