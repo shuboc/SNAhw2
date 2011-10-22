@@ -24,6 +24,8 @@ public class TestMain {
 		icmodel.reportOutcome();
 		ltmodel.reportOutcome();
 		mymodel.reportOutcome();
+		
+		
 	}
 
 }

@@ -1,8 +1,18 @@
 package helper;
 
-public class MyNode {
+public class MyNode implements Comparable<MyNode> {
 	public static double threshold=0.3;
 	
+	private int measure;
+	
+	public int getMeasure() {
+		return measure;
+	}
+
+	public void setMeasure(int measure) {
+		this.measure = measure;
+	}
+
 	private int id;
 	private boolean state=false;
 
@@ -35,5 +45,12 @@ public class MyNode {
 
 	public int getId() {
 		return id;
+	}
+
+	@Override
+	public int compareTo(MyNode o) {
+		if(this.measure > o.measure) return 1;
+		else if(this.measure == o.measure) return 0;
+		else return -1;
 	}
 }

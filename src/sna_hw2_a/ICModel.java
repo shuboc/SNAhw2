@@ -1,11 +1,17 @@
 package sna_hw2_a;
 
 import helper.MyNode;
+
 import java.util.Random;
 
 
 public class ICModel extends Model{
 
+	public ICModel(){}
+	public ICModel(Model model){
+		super(model);
+	}
+	
 	private Random rand= new Random();
 	
 	public void changeEdgeWeight(){};

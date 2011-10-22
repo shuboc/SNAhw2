@@ -1,17 +1,37 @@
 package sna_hw2_a;
 
-import helper.*;
-import java.io.*;
-import java.util.*;
-import edu.uci.ics.jung.graph.*;
+import helper.AttackMethod;
+import helper.AttackStrategy;
+import helper.MyLink;
+import helper.MyNode;
+import helper.ReadGraph;
+import helper.ReadReveal;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+import edu.uci.ics.jung.graph.DirectedGraph;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
 
 public abstract class Model {
 
+	protected DirectedGraph<MyNode,MyLink> graph = new DirectedSparseGraph<MyNode,MyLink>(); 	
 	protected Map<Integer, MyNode> map = new TreeMap<Integer, MyNode>();
-	protected DirectedGraph<MyNode,MyLink> graph = new DirectedSparseGraph<MyNode,MyLink>(); 
 	protected ArrayList<MyNode> hasInfected= new ArrayList<MyNode>();
 	protected ArrayList<MyNode> infectedNodesQueue = new ArrayList<MyNode>();
 	
+	public Map<Integer, MyNode> getMap() {
+		return map;
+	}
+
+	public ArrayList<MyNode> getHasInfected() {
+		return hasInfected;
+	}
+
 	// get Initial Graph
 	public void getGraph(String s)throws IOException{
 		ReadGraph reader = new ReadGraph(s);
@@ -32,11 +52,11 @@ public abstract class Model {
 		}
 	}
 	
-	// get Initial infected nodes
+	// get Initial infected nodes  (also initial hasInfected)
 	public void getInfectedNodesQueue(String s) throws IOException{
 		ReadReveal reveal= new ReadReveal(s);
 		ArrayList<Integer> infectedArray=reveal.getReveal();
-		for (MyNode vTemp:graph.getVertices()){
+		for (MyNode vTemp:getGraph().getVertices()){
 			if (infectedArray.contains(vTemp.getId())){
 				vTemp.setState(true);
 				infectedNodesQueue.add(vTemp);
@@ -52,6 +72,15 @@ public abstract class Model {
 	public void diffuse(){
 		while (!infectedNodesQueue.isEmpty()){
 			MyNode vTemp=infectedNodesQueue.get(0);
+			if (graph==null){
+				System.out.println("fuck1");
+			}
+			if (vTemp==null){
+				System.out.println("fuck2");
+			}
+			if (!graph.containsVertex(vTemp)){
+				System.out.println("fuck3");
+			}
 			for (MyNode neighborOut:graph.getSuccessors(vTemp)){
 				if (neighborOut.isState()==false){
 					tryInfect(vTemp,neighborOut);
@@ -66,6 +95,12 @@ public abstract class Model {
 		}
 	}
 	
+	public void init(String graphFileName, String revealFileName)throws IOException{
+		getGraph(graphFileName);
+		getInfectedNodesQueue(revealFileName);
+		changeEdgeWeight();
+	}
+
 	public void start(String graphFileName, String revealFileName)throws IOException{
 		getGraph(graphFileName);
 		getInfectedNodesQueue(revealFileName);
@@ -84,7 +119,7 @@ public abstract class Model {
 	}
 	public void reportOutcome(){
 		System.out.println("final outcome:");
-		System.out.println(graph.getVertexCount());
+		System.out.println(getGraph().getVertexCount());
 		System.out.println(hasInfected.size());
 	}
 	// default constructor
@@ -93,7 +128,7 @@ public abstract class Model {
 	}
 	// copy constructor
 	public Model(Model model){
-		graph= new DirectedSparseGraph<MyNode,MyLink>();
+		graph=new DirectedSparseGraph<MyNode,MyLink>();
 		map=new TreeMap<Integer,MyNode>();
 		for (MyLink link:model.graph.getEdges()){
 			MyNode node1=map.get(model.graph.getSource(link).getId());
@@ -112,23 +147,60 @@ public abstract class Model {
 			MyNode node=map.get(vTemp.getId());
 			infectedNodesQueue.add(node);
 			hasInfected.add(node);
-		}	
+		}
+		//System.out.println(123);
 	}
 	
-	public void Attack(int num,AttackMethod method){
+	public void attack(AttackMethod method){
 		// num is # removed nodes
 		// method is attack method
-		for (int i=0;i<num;i++){
+			int num = (int) (0.05 * this.graph.getVertexCount());	
+			
 			switch (method){
-				case NeighborAttack:{
-					int index=AttackStrategy.neighborAttack(graph);
-					MyNode node=map.get(index);
-					graph.removeVertex(node);
+				case NeighborAttack:{					
+					for (int i=0;i<num;i++){
+						int index=AttackStrategy.neighborAttack(getGraph());
+						MyNode node=map.get(index);
+						getGraph().removeVertex(node);
+					}
 				}
-				// other methods
+				break;
+				
+				case TopKDegreeAttack:{
+					AttackStrategy.topKDegree(this, num);
+				}
+				break;
+				
+				case InfluencialAttack:{
+					int index=-1;
+					for (int i=0;i<num;i++){
+						index=AttackStrategy.influencialAttack(this);
+						MyNode node=map.get(index);
+						graph.removeVertex(node);
+					}
+					//System.out.println(index);
+				}
+				break;
+				
+				case GreedyTopKDegreeAttack:{
+					AttackStrategy.greedyTopKDegree(this, num);
+				}
+				break;
+				
+				case FriendsOfPatientsAttack:{
+					AttackStrategy.saveFriendsOfPatients(this, num);
+				}
+				break;
 			}
 		
-		}
+	}
+
+	public DirectedGraph<MyNode,MyLink> getGraph() {
+		return graph;
+	}
+
+	public void setGraph(DirectedGraph<MyNode,MyLink> graph) {
+		this.graph = graph;
 	}
 }
 	

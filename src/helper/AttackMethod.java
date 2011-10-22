@@ -1,5 +1,5 @@
 package helper;
 
 public enum AttackMethod {
-	NeighborAttack,
+	NeighborAttack, TopKDegreeAttack, InfluencialAttack, GreedyTopKDegreeAttack, FriendsOfPatientsAttack
 }
