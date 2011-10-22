@@ -135,6 +135,8 @@ public class AttackStrategy {
 			//If a node is healthy => Test how does its removal affect the diffusion
 			if(node.isState() == false){
 				
+				
+				//TODO some implementation can be done to speed up
 				Model testModel = null;
 				if(model instanceof ICModel) testModel = new ICModel(model);
 				else if(model instanceof LTModel) testModel = new LTModel(model);
@@ -181,32 +183,7 @@ public class AttackStrategy {
 			removeCount++;
 		}
 		
-		return immuneList;
-		
-		/*
-		for(MyNode node : model.getGraph().getVertices()){
-			
-			//If a node is healthy => Test how does its removal affect the diffusion
-			if(node.isState() == false){
-				
-				Model testModel = null;
-				if(model instanceof ICModel) testModel = new ICModel(model);
-				else if(model instanceof LTModel) testModel = new LTModel(model);
-				else if(model instanceof MyModel) testModel = new MyModel(model);
-				
-				Integer nodeID = node.getId();
-				MyNode toRemove = testModel.getMap().get(nodeID);
-				testModel.getGraph().removeVertex(toRemove);
-				
-				testModel.diffuse();
-				int infectedCount = testModel.getHasInfected().size();
-				
-				node.setMeasure(infectedCount);
-				nodeList.add(node);
-			}
-		}
-		
-		Collections.sort(nodeList);*/					
+		return immuneList;				
 		
 	}
 	
