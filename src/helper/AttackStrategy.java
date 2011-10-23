@@ -130,11 +130,11 @@ public class AttackStrategy {
 
 	public static List<Integer> myTopKInfluential(Model model, int removeNum){
 		
+		int count = 0;
 		List<MyNode> nodeList = new ArrayList<MyNode>();
 		for(MyNode node : model.getGraph().getVertices()){			
 			//If a node is healthy => Test how does its removal affect the diffusion
 			if(node.isState() == false){
-				
 				
 				//TODO some implementation can be done to speed up
 				Model testModel = null;
@@ -151,15 +151,20 @@ public class AttackStrategy {
 				
 				node.setMeasure(infectedCount);
 				nodeList.add(node);
+				count++;
+				System.out.println(count);
 			}
 		}
 		
 		Collections.sort(nodeList);
 		
 		List<Integer> immuneList = new ArrayList<Integer>();
-		for(int i=nodeList.size()-1; i>=0; i--){
+		int removeCount = 0;
+		for(int i=0; i<nodeList.size(); i++){
 			immuneList.add(nodeList.get(i).getId());
 			model.getGraph().removeVertex(nodeList.get(i));
+			removeCount++;
+			if(removeCount >= removeNum) break;
 		}
 		
 		return immuneList;
