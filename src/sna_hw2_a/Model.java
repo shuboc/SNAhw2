@@ -11,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -69,7 +70,8 @@ public abstract class Model {
 	public abstract void tryInfect(MyNode node1,MyNode node2);
 	public abstract void changeEdgeWeight();
 	
-	public void diffuse(){
+	//Return the ratio of the infected
+	public double diffuse(){
 		while (!infectedNodesQueue.isEmpty()){
 			MyNode vTemp=infectedNodesQueue.get(0);
 			if (graph==null){
@@ -93,6 +95,7 @@ public abstract class Model {
 			}
 			infectedNodesQueue.remove(vTemp);
 		}
+		return (double)((double)this.hasInfected.size()/(double)this.graph.getVertexCount());		
 	}
 	
 	public void init(String graphFileName, String revealFileName)throws IOException{
@@ -151,52 +154,54 @@ public abstract class Model {
 		//System.out.println(123);
 	}
 	
-	public void attack(AttackMethod method){
+	public List<Integer> attack(AttackMethod method, double ratio){
 		// num is # removed nodes
 		// method is attack method
-			int num = (int) (0.05 * this.graph.getVertexCount());	
 			
-			switch (method){
-				case NeighborAttack:{					
-					for (int i=0;i<num;i++){
-						int index=AttackStrategy.neighborAttack(getGraph());
-						MyNode node=map.get(index);
-						getGraph().removeVertex(node);
-					}
+		List<Integer> list = new ArrayList<Integer>();
+		
+		int num = (int) (ratio * this.graph.getVertexCount());	
+		switch (method){
+			case NeighborAttack:{					
+				for (int i=0;i<num;i++){
+					int index=AttackStrategy.neighborAttack(getGraph());
+					MyNode node=map.get(index);
+					getGraph().removeVertex(node);
 				}
-				break;
-				
-				case TopKDegreeAttack:{
-					AttackStrategy.topKDegree(this, num);
-				}
-				break;
-				
-				case MyTopKInfluentialAttack:{
-					AttackStrategy.myTopKInfluential(this, num);
-				}
-				break;
-				
-				case InfluencialAttack:{
-					int index=-1;
-					for (int i=0;i<num;i++){
-						index=AttackStrategy.influencialAttack(this);
-						MyNode node=map.get(index);
-						graph.removeVertex(node);
-					}
-					//System.out.println(index);
-				}
-				break;
-				
-				case GreedyTopKDegreeAttack:{
-					AttackStrategy.greedyTopKDegree(this, num);
-				}
-				break;
-				
-				case FriendsOfPatientsAttack:{
-					AttackStrategy.saveFriendsOfPatients(this, num);
-				}
-				break;
+				//TODO
+				return list;
 			}
+			
+			case TopKDegreeAttack:{
+				return AttackStrategy.topKDegree(this, num);
+			}
+				
+			case MyTopKInfluentialAttack:{
+				return AttackStrategy.myTopKInfluential(this, num);
+			}			
+				
+			case InfluencialAttack:{
+				int index=-1;
+				for (int i=0;i<num;i++){
+					index=AttackStrategy.influencialAttack(this);
+					MyNode node=map.get(index);
+					graph.removeVertex(node);
+				}
+				//TODO
+				return list;
+			}
+				
+			case GreedyTopKDegreeAttack:{
+				return AttackStrategy.greedyTopKDegree(this, num);
+			}			
+				
+			case FriendsOfPatientsAttack:{
+				return AttackStrategy.saveFriendsOfPatients(this, num);
+			}			
+				
+			default:
+				return list;
+		}
 		
 	}
 
